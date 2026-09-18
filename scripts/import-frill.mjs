@@ -1,28 +1,38 @@
 #!/usr/bin/env node
 /**
- * Imports the real board from Frill (feedback.ryder.id) into Firestore.
+ * Imports the Ryder board out of Frill (feedback.ryder.id) into Firestore.
  *
  *   node scripts/import-frill.mjs                  # dry run: prints the plan
- *   node scripts/import-frill.mjs --write          # import, keeping what is there
+ *   node scripts/import-frill.mjs --write          # import over what is there
  *   node scripts/import-frill.mjs --write --reset  # wipe every post first
  *
- * Reads scripts/frill-export.json, which was pulled from the public board.
- * Keeping the export as a checked-in file rather than scraping on each run is
- * deliberate: the import is then reproducible, reviewable in a diff, and does
- * not depend on Frill still being up or still rendering the same markup.
+ * Two sources, because Frill keeps them apart and so should we:
  *
- * What comes across: title, body, author name, status, vote count, comments
- * and the original submission date. What does not:
+ *   scripts/frill-export.json   the public board - already approved, already
+ *                               voted on, so it arrives published.
+ *   scripts/frill-pending.json  the admin inbox - submissions nobody has
+ *                               ruled on yet, so they arrive as `pending`
+ *                               and land in the review queue. The decision
+ *                               is not made here; it is only moved.
  *
- *  - Individual voters. Frill's public board exposes totals, not who voted,
- *    so votes arrive as a count with no receipts behind them. The number is
- *    real; the one-vote-per-person rule simply has nothing to enforce against
- *    for historical votes, and starts working from the first vote cast here.
- *  - Comment threading. Frill's replies are flattened to top-level comments,
+ * Both are checked in rather than scraped per run. The import is then
+ * reproducible, reviewable in a diff, and does not depend on Frill still
+ * being up or still rendering the same markup the scraper expected.
+ *
+ * Every id is derived from the Frill slug, including comments and timeline
+ * events, so running this twice writes the same documents twice rather than
+ * a second copy of everything. That matters more than it sounds: the natural
+ * shape for this script is auto-ids, and with auto-ids a re-run to pick up
+ * ten new ideas would silently duplicate all the comments on the old ones.
+ *
+ * What cannot come across:
+ *
+ *  - Individual voters. Frill's board exposes totals, not who voted, so
+ *    votes arrive as a count with no receipts behind them. The number is
+ *    real; one-vote-per-person simply has nothing to enforce against for
+ *    historical votes and starts working from the first vote cast here.
+ *  - Comment threading. Replies are flattened to top-level comments,
  *    because the public feed does not expose the parent relationship.
- *
- * Everything imported is published (moderation: approved), since it was
- * already public on Frill. Nothing lands in the review queue.
  */
 
 import { readFileSync } from "node:fs";
@@ -80,14 +90,15 @@ const BOARDS = [
   { id: "other", name: "Everything else", slug: "other", description: "Docs, support, integrations, anything that does not fit above.", order: 4 },
 ];
 
-const ideas = JSON.parse(readFileSync("scripts/frill-export.json", "utf8"));
+const published = JSON.parse(readFileSync("scripts/frill-export.json", "utf8"));
+const pending = JSON.parse(readFileSync("scripts/frill-pending.json", "utf8"));
+const ideas = [...published, ...pending];
 
-/** A stable id per Frill idea, so re-running does not duplicate anything. */
-const postId = (slug) => `frill_${slug}`.slice(0, 1500);
+/** Firestore ids cannot contain "/" and cap at 1500 bytes. */
+const docId = (...parts) =>
+  parts.join("_").replace(/[^A-Za-z0-9_-]+/g, "-").slice(0, 200);
 
-function ts(iso) {
-  return Timestamp.fromDate(new Date(iso));
-}
+const ts = (iso) => Timestamp.fromDate(new Date(iso));
 
 async function deleteEverything() {
   const posts = await db.collection("posts").get();
@@ -101,9 +112,10 @@ async function deleteEverything() {
 async function main() {
   const totalComments = ideas.reduce((n, i) => n + i.comments.length, 0);
   const totalVotes = ideas.reduce((n, i) => n + i.votes, 0);
+  const pendingCount = ideas.filter((i) => i.moderation === "pending").length;
 
   console.log(`\n${write ? "Importing into" : "Dry run against"} ${projectId}\n`);
-  console.log(`  ${ideas.length} ideas`);
+  console.log(`  ${ideas.length} ideas (${ideas.length - pendingCount} published, ${pendingCount} awaiting review)`);
   console.log(`  ${totalComments} comments`);
   console.log(`  ${totalVotes} votes carried over as counts`);
 
@@ -139,7 +151,9 @@ async function main() {
 
   let written = 0;
   for (const idea of ideas) {
-    const ref = db.collection("posts").doc(postId(idea.slug));
+    const moderation = idea.moderation ?? "approved";
+    const approved = moderation === "approved";
+    const ref = db.collection("posts").doc(docId("frill", idea.slug));
     const createdAt = ts(idea.createdAt);
     const batch = db.batch();
 
@@ -148,17 +162,18 @@ async function main() {
       body: idea.body,
       boardId: idea.boardId,
       status: idea.status,
-      authorId: `frill_${idea.slug}`,
+      authorId: docId("frill", idea.slug),
       authorName: idea.authorName,
       voteCount: idea.votes,
       commentCount: idea.comments.length,
       pinned: false,
-      // Already public on Frill, so it is public here. Nothing from this
-      // import belongs in the review queue.
-      moderation: "approved",
-      isPublic: true,
-      reviewedAt: createdAt,
-      reviewerName: "Imported from Frill",
+      moderation,
+      // The denormalised "approved and not merged" flag the public board
+      // filters on. Pending ideas are invisible to everyone but their author
+      // and an admin, which is exactly their state on Frill.
+      isPublic: approved,
+      reviewedAt: approved ? createdAt : null,
+      reviewerName: approved ? "Imported from Frill" : null,
       reviewNote: null,
       mergedInto: null,
       roadmapNote: null,
@@ -168,7 +183,7 @@ async function main() {
       updatedAt: createdAt,
     });
 
-    batch.set(ref.collection("events").doc(), {
+    batch.set(ref.collection("events").doc("created"), {
       type: "created",
       from: null,
       to: "open",
@@ -177,10 +192,10 @@ async function main() {
       createdAt,
     });
 
-    // Only the statuses that are not the default get a timeline entry, so a
+    // Only a status that is not the default earns a timeline entry, so a
     // plain open ticket does not show a pointless "moved to open".
-    if (idea.status !== "open") {
-      batch.set(ref.collection("events").doc(), {
+    if (approved && idea.status !== "open") {
+      batch.set(ref.collection("events").doc("status"), {
         type: "status",
         from: "open",
         to: idea.status,
@@ -190,16 +205,16 @@ async function main() {
       });
     }
 
-    for (const c of idea.comments) {
-      batch.set(ref.collection("comments").doc(), {
+    idea.comments.forEach((c, n) => {
+      batch.set(ref.collection("comments").doc(docId("c", String(n), c.createdAt)), {
         body: c.body,
-        authorId: `frill_c_${idea.slug}_${c.createdAt}`,
+        authorId: docId("frill", idea.slug, "c", String(n)),
         authorName: c.authorName,
         isAdmin: false,
         parentId: null,
         createdAt: ts(c.createdAt),
       });
-    }
+    });
 
     await batch.commit();
     written++;

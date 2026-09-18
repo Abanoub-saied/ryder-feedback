@@ -175,19 +175,6 @@ export function BoardView() {
       <section className="animate-rise">
         <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
           <div className="max-w-xl">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-pill border border-stroke py-1 pl-1.5 pr-3 text-[12px] font-semibold text-ink-2">
-              <span
-                className="grid h-5 w-5 place-items-center rounded-full"
-                style={{ background: "var(--brand-tint)" }}
-                aria-hidden
-              >
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ background: "var(--brand)" }}
-                />
-              </span>
-              Public roadmap, decided by votes
-            </p>
             <h1 className="display text-[2.25rem] sm:text-[3.25rem]">
               What should we{" "}
               {/* The line break is a typographic choice for the two-line
@@ -244,29 +231,6 @@ export function BoardView() {
             </button>
           </div>
         </div>
-
-        {/* Stat row. Reads the same page of posts the board is already
-            listening to, so it costs no extra query. */}
-        <dl className="mt-8 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          <Stat
-            label={activeBoard ? `Ideas in ${activeBoard.name}` : "Total ideas"}
-            value={posts.length}
-            loading={loading}
-          />
-          <Stat
-            label="In progress"
-            value={counts.get("in-progress") ?? 0}
-            accent={STATUS_META["in-progress"].accent}
-            loading={loading}
-          />
-          <Stat
-            label="Shipped"
-            value={counts.get("shipped") ?? 0}
-            accent={STATUS_META.shipped.accent}
-            loading={loading}
-          />
-          <Stat label="Your votes" value={votes.count} accent="var(--brand)" />
-        </dl>
       </section>
 
       {firstError && (
@@ -549,36 +513,6 @@ function FilterPill({
         </svg>
       </button>
     </span>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  accent,
-  loading,
-}: {
-  label: string;
-  value: number;
-  accent?: string;
-  loading?: boolean;
-}) {
-  return (
-    <div className="card px-4 py-3.5">
-      <dt className="flex items-center gap-1.5 text-[12px] font-medium text-ink-2">
-        {accent && (
-          <span
-            aria-hidden
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ background: accent }}
-          />
-        )}
-        {label}
-      </dt>
-      <dd className="numeric mt-1 text-[26px] font-semibold leading-none tracking-tight">
-        {loading ? <span className="text-ink-3">—</span> : value}
-      </dd>
-    </div>
   );
 }
 

@@ -1,0 +1,382 @@
+[
+  {
+    "slug": "support-xrp",
+    "boardId": "assets",
+    "title": "Support XRP",
+    "body": "I would like my ryder wallet to support XRP! This is the crypto I own the most.",
+    "authorName": "Anonymous Echidna",
+    "status": "in-progress",
+    "votes": 28,
+    "createdAt": "2025-10-21T14:13:39Z",
+    "comments": [
+      { "authorName": "Anonymous Cougar", "body": "I am holding out on the purchase until you add XRP.\nThanks for the concideration", "createdAt": "2025-11-17T00:59:49Z" },
+      { "authorName": "Anonymous Moth", "body": "+1 for XRP support", "createdAt": "2025-11-25T13:51:40Z" },
+      { "authorName": "Anonymous Rabbit", "body": "yes, please get XRP support", "createdAt": "2025-12-06T21:38:46Z" },
+      { "authorName": "Anonymous Gerbil", "body": "I Good Morning, XRP native please", "createdAt": "2026-01-07T06:18:51Z" },
+      { "authorName": "Anonymous Pangolin", "body": "XRP is my biggest crypto.  Would love to see it added!", "createdAt": "2026-01-17T21:09:07Z" },
+      { "authorName": "Anonymous Chipmunk", "body": "Please add XRP support", "createdAt": "2026-01-31T20:55:53Z" },
+      { "authorName": "Anonymous Chipmunk", "body": "Please XRP", "createdAt": "2026-03-07T18:51:05Z" },
+      { "authorName": "Tobias S", "body": "My Favorit is XRP", "createdAt": "2026-04-07T18:38:24Z" },
+      { "authorName": "Anonymous Buffalo", "body": "get XRP on Ryder it will be a must", "createdAt": "2026-04-27T17:47:44Z" },
+      { "authorName": "Anonymous Turkey", "body": "yes we need XRP on RYDER", "createdAt": "2026-07-11T19:42:23Z" },
+      { "authorName": "Danmas", "body": "please get XRP on Ryder!!'", "createdAt": "2026-07-15T02:44:16Z" },
+      { "authorName": "Danmas", "body": "any updates regarding XRP integration", "createdAt": "2026-07-21T06:05:35Z" },
+      { "authorName": "Anonymous Wallaby", "body": "This wallet does not support Xrp or com I have no use for I how do i return it", "createdAt": "2026-08-01T12:23:07Z" },
+      { "authorName": "Anonymous Echidna", "body": "Thankyou for supporting XRP, now I can store it on my Ryder one", "createdAt": "2026-09-16T09:39:20Z" }
+    ]
+  },
+  {
+    "slug": "passcode-or-faceid-to-open-the-app",
+    "boardId": "app",
+    "title": "Passcode or FaceID to open the app",
+    "body": "A basic security feature should be added to open the app. Most other Wallets come standard with this. When i open the app, either biometric or pin or something should be implemented before displaying i.",
+    "authorName": "Anonymous Turkey",
+    "status": "planned",
+    "votes": 30,
+    "createdAt": "2025-12-26T17:54:12Z",
+    "comments": [
+      { "authorName": "Anonymous Mink", "body": "Finger print   :D", "createdAt": "2026-03-28T01:40:39Z" },
+      { "authorName": "Anonymous Cuttlefish", "body": "This is security ryder need to fix this!", "createdAt": "2026-07-25T12:03:40Z" },
+      { "authorName": "Anonymous Kiwi", "body": "this is a must have", "createdAt": "2026-07-27T08:15:27Z" }
+    ]
+  },
+  {
+    "slug": "silicon-case-or-shell-with-landyard-loop",
+    "boardId": "device",
+    "title": "Silicon case or shell with landyard loop",
+    "body": "I love my Ryder One, but I think it is missing some customizations like the other hardware signers have. I think it will be great to sell official cases for this. Probably a tempered glass, too. But I think that one should be last",
+    "authorName": "Anonymous Bowfin",
+    "status": "under-review",
+    "votes": 30,
+    "createdAt": "2025-11-24T13:29:02Z",
+    "comments": [
+      { "authorName": "Anonymous Moth", "body": "Would be cool if this could be a keychain as well.\nMaybe even add a low power screen saver.", "createdAt": "2025-11-25T13:55:38Z" },
+      { "authorName": "OngSN", "body": "This should be at a much lower price. Competitor like ledger and trezor is charging exorbitant price for a protection case.", "createdAt": "2026-06-21T11:12:47Z" }
+    ]
+  },
+  {
+    "slug": "hbar-support",
+    "boardId": "assets",
+    "title": "HBAR support",
+    "body": "Can you add Hedera Hashgraph support?\nThanks!",
+    "authorName": "Anonymous Axolotl",
+    "status": "open",
+    "votes": 28,
+    "createdAt": "2025-11-14T20:11:20Z",
+    "comments": [
+      { "authorName": "Anonymous Ladybug", "body": "good one to have", "createdAt": "2026-08-18T23:22:04Z" }
+    ]
+  },
+  {
+    "slug": "pin-should-be-6-to-8-digits",
+    "boardId": "app",
+    "title": "PIN should be 6 to 8 digits",
+    "body": "It would be fantastic if users could choose whether they want a passcode with 8 digits or fewer. I'm a fan of 8-digit passcodes because they add an extra layer of difficulty for anyone trying to guess it.",
+    "authorName": "Anonymous Goat",
+    "status": "open",
+    "votes": 23,
+    "createdAt": "2025-11-28T13:05:41Z",
+    "comments": [
+      { "authorName": "Anonymous Kiwi", "body": "Yessss! I think that shoul already have it, why questions about it?", "createdAt": "2026-07-27T07:32:52Z" }
+    ]
+  },
+  {
+    "slug": "support-cardano",
+    "boardId": "assets",
+    "title": "Support Cardano",
+    "body": "",
+    "authorName": "Anonymous Echidna",
+    "status": "open",
+    "votes": 16,
+    "createdAt": "2025-10-21T15:24:55Z",
+    "comments": [
+      { "authorName": "Anonymous Moth", "body": "+1 For Cardano Support", "createdAt": "2025-11-25T13:51:59Z" },
+      { "authorName": "Anonymous Sawfish", "body": "CARDANO has been and continue to be in the top Ten Crypto currency which commands priority in your selection of support.\nI am surprised you have not given this your priority.", "createdAt": "2025-11-25T13:57:06Z" }
+    ]
+  },
+  {
+    "slug": "create-and-manage-multiple-wallets",
+    "boardId": "app",
+    "title": "Create and manage multiple wallets",
+    "body": "Multiple wallets can be useful for many reasons...\n\nIt can be used to separate different types/purposes/uses/etc.\n(e.g. \"readily available\" amounts vs \"set aside for holding, staking, etc\")\n\nAnd...\nspreading assets across more than one wallet becomes an additional \"safety buffer,\" in that if one of the wallets gets compromised somehow, only a portion of your holdings would be at risk\n\nPossible requirement: Additional recovery tags(?)",
+    "authorName": "LJ",
+    "status": "open",
+    "votes": 15,
+    "createdAt": "2026-02-11T22:18:28Z",
+    "comments": [
+      { "authorName": "Steve H", "body": "Completely agree this needs to be implemented. Just like in Tangem app, we should be able to add as many wallets as we want since we can't download a new app with each Ryder 1 we buy.", "createdAt": "2026-07-18T01:09:08Z" }
+    ]
+  },
+  {
+    "slug": "battery-life-showing-in-percentage",
+    "boardId": "device",
+    "title": "Battery life showing in percentage",
+    "body": "In settings Batterylife showing in procentage.\nIn settings\nAdjust Screen brightness levels.\n\nIn meny\nCrypto Market tracker bar showing the current prlces of your favorite coins.\nThe Tags in Bitcoin, Solana, color scheme.",
+    "authorName": "Marcel",
+    "status": "open",
+    "votes": 15,
+    "createdAt": "2025-12-07T03:37:28Z",
+    "comments": [
+      { "authorName": "OngSN", "body": "This would be much easier to identify the remaining juice.", "createdAt": "2026-06-21T11:09:32Z" },
+      { "authorName": "Danmas", "body": "I agree", "createdAt": "2026-07-15T02:42:37Z" }
+    ]
+  },
+  {
+    "slug": "support-for-sbtc",
+    "boardId": "assets",
+    "title": "Support for sBTC",
+    "body": "sBTC is how people get paid in dual stacking and that way you can be fully in control of you're funds while staying liquid",
+    "authorName": "Anonymous Narwhal",
+    "status": "open",
+    "votes": 12,
+    "createdAt": "2025-12-18T01:18:58Z",
+    "comments": []
+  },
+  {
+    "slug": "support-for-xlm",
+    "boardId": "assets",
+    "title": "Support for XLM",
+    "body": "Hey Ryder One. Stellar is a premier digital asset with a large community. Adding XLM will bring a lot of attention to the Ryder brand",
+    "authorName": "Anonymous Himalayan",
+    "status": "open",
+    "votes": 12,
+    "createdAt": "2025-12-05T22:58:02Z",
+    "comments": [
+      { "authorName": "Anonymous Avocet", "body": "yes, please add XLM!", "createdAt": "2026-01-20T16:52:02Z" }
+    ]
+  },
+  {
+    "slug": "add-support-for-xmr",
+    "boardId": "assets",
+    "title": "Add support for XMR!",
+    "body": "Please the support, the only coin in existence that still holds satoshi's vision. I can't be alone in the being the only person who got this device simply because you said you would support xmr.",
+    "authorName": "Anonymous Cassowary",
+    "status": "open",
+    "votes": 10,
+    "createdAt": "2026-01-02T13:55:29Z",
+    "comments": [
+      { "authorName": "Wagyu", "body": "+1", "createdAt": "2026-01-21T15:29:26Z" },
+      { "authorName": "Anonymous Lamprey", "body": "I am in your boat as well.", "createdAt": "2026-09-17T21:54:59Z" }
+    ]
+  },
+  {
+    "slug": "phantom-wallet-integration",
+    "boardId": "other",
+    "title": "Phantom Wallet Integration",
+    "body": "Integration with Phantom Wallet would be cool.",
+    "authorName": "Anonymous Turkey",
+    "status": "open",
+    "votes": 11,
+    "createdAt": "2025-12-21T12:36:41Z",
+    "comments": [
+      { "authorName": "Ryder S", "body": "Any software wallet is ok. I know it takes a lot of development effort especially with NFC transport layer. Ledger put a lot of investment to this in the early days to allow software wallets to support.", "createdAt": "2026-08-13T15:53:14Z" }
+    ]
+  },
+  {
+    "slug": "add-revolut-pay-for-eu-based-users",
+    "boardId": "other",
+    "title": "Add Revolut Pay for EU-based users",
+    "body": "Please add Revolut Pay for EU-based users. It offers lower fees than MoonPay.",
+    "authorName": "Stacker",
+    "status": "open",
+    "votes": 11,
+    "createdAt": "2025-12-01T11:09:18Z",
+    "comments": [
+      { "authorName": "Anonymous Fangtooth", "body": "I would also recommend that...", "createdAt": "2026-07-19T10:59:38Z" }
+    ]
+  },
+  {
+    "slug": "add-a-feature-to-track-active-recovery-tags",
+    "boardId": "device",
+    "title": "Add a feature to track active recovery tags, show which backs up the wallet, and how many are used.",
+    "body": "If a wallet allows multiple recovery tags (for example, 3 recovery tags), how can we verify which one is actually linked as a backup to the wallet?\n\nHow should recovery tags be properly managed - are they stored on the phone, on the Ryder hardware wallet, or both?\n\nCurrently, there's no clear way to track how many recovery tags have already been created or used. It would be very helpful to add a feature that shows:\n\n- How many recovery tags are active\n- Which one is linked to the wallet backup\n- The status of each recovery tag\n\nThis would improve transparency, security, and overall user experience.",
+    "authorName": "Izdnhussin",
+    "status": "open",
+    "votes": 10,
+    "createdAt": "2026-02-18T03:44:26Z",
+    "comments": [
+      { "authorName": "Anonymous Kiwi", "body": "This is the same confusion situation im facing! Please do it soon...", "createdAt": "2026-07-27T07:37:39Z" },
+      { "authorName": "Anonymous Kiwi", "body": "100% agree this is what ryder should be leading towards if they said recovery and cold wallet is their priority as hardware, this features is a must.", "createdAt": "2026-07-27T08:13:33Z" }
+    ]
+  },
+  {
+    "slug": "see-owned-crypto-on-device-with-qr-code-public-address",
+    "boardId": "device",
+    "title": "See owned crypto on device with QR code public address",
+    "body": "II would like to see the crypto I own on the device. I do not need to see updated price info.I just want to see what I own.And what's in my wallet without my phone.",
+    "authorName": "keith24@gmail.com",
+    "status": "open",
+    "votes": 9,
+    "createdAt": "2025-11-13T12:32:31Z",
+    "comments": []
+  },
+  {
+    "slug": "support-kaspa",
+    "boardId": "assets",
+    "title": "Support Kaspa",
+    "body": "Add support for Kaspa $KAS Cryptocurrency",
+    "authorName": "Anonymous Rabbit",
+    "status": "open",
+    "votes": 9,
+    "createdAt": "2025-10-28T09:57:53Z",
+    "comments": [
+      { "authorName": "Anonymous Moorhen", "body": "KAS is a revolution", "createdAt": "2025-11-14T18:13:30Z" }
+    ]
+  },
+  {
+    "slug": "show-qr-on-device",
+    "boardId": "device",
+    "title": "Show QR on device.",
+    "body": "This would actually be a free marketing for you if you can add showing qr on device. Then i dont need to take my phone out when people need to send me crypto AND I can show off the sleek hardware",
+    "authorName": "Wagyu",
+    "status": "open",
+    "votes": 8,
+    "createdAt": "2026-01-29T06:50:06Z",
+    "comments": []
+  },
+  {
+    "slug": "push-notifications-with-pl-of-your-crypto-in-app",
+    "boardId": "app",
+    "title": "Push notifications with P&L of your crypto in-app",
+    "body": "Push notifications and p&l on the coins in app",
+    "authorName": "Anonymous Umbrellabird",
+    "status": "planned",
+    "votes": 8,
+    "createdAt": "2025-12-10T11:28:01Z",
+    "comments": [
+      { "authorName": "Anonymous Koala", "body": "this is so needed", "createdAt": "2026-01-17T03:41:05Z" },
+      { "authorName": "Anonymous Clownfish", "body": "would love this!!", "createdAt": "2026-01-17T08:09:49Z" },
+      { "authorName": "ABADALAZIZ D", "body": "and(pk(A),or(pk(B),or(9@pk(C),older(1000))))", "createdAt": "2026-07-26T03:35:30Z" }
+    ]
+  },
+  {
+    "slug": "change-wallet-name",
+    "boardId": "app",
+    "title": "Change wallet name",
+    "body": "Wallet name change",
+    "authorName": "Marcel",
+    "status": "open",
+    "votes": 8,
+    "createdAt": "2025-12-10T08:00:49Z",
+    "comments": []
+  },
+  {
+    "slug": "tron-network",
+    "boardId": "assets",
+    "title": "Tron network",
+    "body": "Tron and Tron tokens pls",
+    "authorName": "Danocrypto",
+    "status": "open",
+    "votes": 8,
+    "createdAt": "2025-12-09T07:38:40Z",
+    "comments": [
+      { "authorName": "OngSN", "body": "Just posted and request for the same.", "createdAt": "2026-06-21T11:08:21Z" }
+    ]
+  },
+  {
+    "slug": "custom-screensaver-or-wallpaper",
+    "boardId": "device",
+    "title": "Custom Screensaver or wallpaper",
+    "body": "Custom Screensavers or wallpapers, maybe NFT or somethIng would be cool. Would love some personalization option. Right now its bland and hard to say its really \"my key\"",
+    "authorName": "Wagyu",
+    "status": "open",
+    "votes": 7,
+    "createdAt": "2026-01-29T06:45:13Z",
+    "comments": []
+  },
+  {
+    "slug": "support-sui",
+    "boardId": "assets",
+    "title": "Support SUI",
+    "body": "Sui token.",
+    "authorName": "Marcel",
+    "status": "open",
+    "votes": 6,
+    "createdAt": "2025-12-23T13:01:59Z",
+    "comments": [
+      { "authorName": "Anonymous Manatee", "body": "Quando ci sara l'integrazione", "createdAt": "2026-06-07T06:30:14Z" }
+    ]
+  },
+  {
+    "slug": "add-solana-eurc-euro-coin-support",
+    "boardId": "assets",
+    "title": "Add Solana EURC (Euro Coin) support",
+    "body": "Please add Solana EURC (Euro Coin) support for those in the EU.",
+    "authorName": "Stacker",
+    "status": "open",
+    "votes": 6,
+    "createdAt": "2025-11-17T10:08:53Z",
+    "comments": []
+  },
+  {
+    "slug": "language-for-the-app",
+    "boardId": "app",
+    "title": "Language for the App",
+    "body": "Wuld be nice to have different languages for the App.",
+    "authorName": "Wagyu",
+    "status": "under-review",
+    "votes": 5,
+    "createdAt": "2026-01-21T15:34:01Z",
+    "comments": [
+      { "authorName": "Anonymous Wasp", "body": "Please add, BahasaMelaysia/BahasaMelayu/Malay as well if can..", "createdAt": "2026-08-03T13:24:06Z" },
+      { "authorName": "kim", "body": "Will Korean be supported? I'm curious.", "createdAt": "2026-08-31T09:05:54Z" }
+    ]
+  },
+  {
+    "slug": "support-for-cronos",
+    "boardId": "assets",
+    "title": "Support For CRONOS",
+    "body": "Support For Cronos Network .",
+    "authorName": "Kendal E Allen J",
+    "status": "open",
+    "votes": 5,
+    "createdAt": "2025-12-07T17:24:40Z",
+    "comments": []
+  },
+  {
+    "slug": "support-for-sbtc-1",
+    "boardId": "assets",
+    "title": "Support for sbtc",
+    "body": "As a big fan of Ryder's super simple, secure hardware wallet (especially with its deep Stacks roots and role in Nakamoto signers), I'd love to see sBTC added as a supported asset.\n\nsBTC is the trustless, non-custodial 1:1 Bitcoin-backed asset on Stacks that finally unlocks real BTC for DeFi, lending, yield farming, and dApps - without ever selling your Bitcoin or relying on centralized custodians.\n\nAdding sBTC support in Ryder would help the Stacks ecosystem by:\n\n- Making it easier and more secure for Bitcoin holders to safely move BTC to sBTC to Stacks apps (and back) using a top-tier hardware wallet.\n- Driving more adoption and liquidity into Stacks DeFi, as users could hold/manage/programmable Bitcoin directly in their Ryder wallet with offline security.\n- Unlocking over $1T in dormant Bitcoin capital for productive use on the leading Bitcoin L2, boosting the entire Bitcoin + Stacks economy.\n- Aligning perfectly with Ryder's Bitcoin focus (like FAST Pool, Nakamoto participation, and future sBTC payouts) and making self-custody even more seamless for the community.\n\nThis would be a game-changer for secure, user-friendly access to Bitcoin-native DeFi. What do you think - any plans or interest in adding sBTC?\n\nThanks for building such an awesome product!",
+    "authorName": "Anonymous Narwhal",
+    "status": "open",
+    "votes": 4,
+    "createdAt": "2026-01-09T14:12:27Z",
+    "comments": []
+  },
+  {
+    "slug": "support-for-layer-2-chains-base-optimism-arbitrum-etc",
+    "boardId": "assets",
+    "title": "Support for Layer 2 Chains (Base, Optimism, Arbitrum, etc.)",
+    "body": "I transact on lower fee Layer 2 chains, like Base, the most. I own most of my crypto on the Base chain.",
+    "authorName": "Anonymous Burmese",
+    "status": "open",
+    "votes": 3,
+    "createdAt": "2026-01-15T01:47:56Z",
+    "comments": [
+      { "authorName": "Anonymous Crane", "body": "I would definitely like to see this implemented someday. I also transact frequently on Base", "createdAt": "2026-05-20T20:33:38Z" }
+    ]
+  },
+  {
+    "slug": "support-xdc-network",
+    "boardId": "assets",
+    "title": "Support XDC Network",
+    "body": "",
+    "authorName": "Anonymous Dachshund",
+    "status": "open",
+    "votes": 3,
+    "createdAt": "2025-11-15T19:35:25Z",
+    "comments": []
+  },
+  {
+    "slug": "support-for-sip-010-tokens-for-stacks-blockchain",
+    "boardId": "assets",
+    "title": "Support for SIP-010 tokens for stacks blockchain",
+    "body": "This would open the possiblity to hold for example liquid stacking tokens with STX yield like stSTX and many others",
+    "authorName": "Gustavo Esteves de A",
+    "status": "open",
+    "votes": 2,
+    "createdAt": "2026-01-07T11:38:30Z",
+    "comments": []
+  }
+]

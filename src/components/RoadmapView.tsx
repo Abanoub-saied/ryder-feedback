@@ -48,17 +48,6 @@ export function RoadmapView() {
     }));
   }, [posts]);
 
-  // The share of roadmapped work that is already live. It is the one number
-  // that answers "do they actually ship?", which is the question a public
-  // roadmap exists to answer.
-  const { shipped, total } = useMemo(() => {
-    const counts = columns.map((c) => c.items.length);
-    return {
-      shipped: counts[2] ?? 0,
-      total: counts.reduce((a, b) => a + b, 0),
-    };
-  }, [columns]);
-
   async function vote(postId: string) {
     const res = await votes.toggle(postId);
     if (!res.ok && res.error) toast(res.error, "error");
@@ -77,38 +66,6 @@ export function RoadmapView() {
             . Vote on anything to push it up its column.
           </p>
         </div>
-
-        {total > 0 && (
-          <div className="card w-full max-w-[260px] px-4 py-3.5">
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[12px] font-medium text-ink-2">
-                Shipped so far
-              </span>
-              <span className="numeric text-[15px] font-semibold">
-                {shipped}
-                <span className="text-ink-2">/{total}</span>
-              </span>
-            </div>
-            <div
-              className="mt-2.5 h-1.5 overflow-hidden rounded-pill"
-              style={{ background: "var(--surface-2)" }}
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={total}
-              aria-valuenow={shipped}
-              aria-label="Roadmap items shipped"
-            >
-              <div
-                className="h-full rounded-pill transition-[width] duration-700"
-                style={{
-                  width: `${Math.round((shipped / total) * 100)}%`,
-                  background: "var(--earn-high)",
-                  transitionTimingFunction: "var(--ease-out-quint)",
-                }}
-              />
-            </div>
-          </div>
-        )}
       </section>
 
       {error && (

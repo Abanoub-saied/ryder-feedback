@@ -21,7 +21,23 @@ export function PostDetail({ postId }: { postId: string }) {
   const { isAdmin, name, setName, authedFetch } = useIdentity();
 
   const [draft, setDraft] = useState("");
-  const [replyTo, setReplyTo] = useState<Comment | null>(null);
+  /**
+   * Which comment the inline reply box sits under, and the thread it belongs
+   * to. Two fields rather than one because threading is a single level deep:
+   * replying to a reply addresses that person but still files the comment
+   * under the thread's root, so a conversation cannot grow a staircase of
+   * indents that nothing renders sensibly on a phone.
+   */
+  const [replyTo, setReplyTo] = useState<{
+    target: Comment;
+    rootId: string;
+  } | null>(null);
+  /**
+   * The reply box keeps its own draft. Sharing one with the composer at the
+   * bottom meant clicking Reply silently carried whatever you had already
+   * typed into a different conversation.
+   */
+  const [replyDraft, setReplyDraft] = useState("");
   const [sending, setSending] = useState(false);
 
   // Comments arrive flat and get grouped into one level of threading. Doing
@@ -60,31 +76,35 @@ export function PostDetail({ postId }: { postId: string }) {
     );
   }
 
-  async function submitComment(e: React.FormEvent) {
-    e.preventDefault();
-    if (sending || !draft.trim()) return;
+  /** Shared by the composer at the bottom and every inline reply box. */
+  async function postComment(
+    body: string,
+    parentId: string | null,
+    onPosted: () => void,
+  ) {
+    if (sending || !body.trim()) return;
     setSending(true);
     try {
       const res = await authedFetch(`/api/posts/${postId}/comments`, {
         method: "POST",
-        body: JSON.stringify({
-          body: draft,
-          name,
-          parentId: replyTo?.id ?? null,
-        }),
+        body: JSON.stringify({ body, name, parentId }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
         toast(data.error ?? "Could not post that comment.", "error");
         return;
       }
-      setDraft("");
-      setReplyTo(null);
+      onPosted();
     } catch {
       toast("Network error. Try again.", "error");
     } finally {
       setSending(false);
     }
+  }
+
+  function openReply(target: Comment, rootId: string) {
+    setReplyTo({ target, rootId });
+    setReplyDraft("");
   }
 
   async function vote() {
@@ -266,35 +286,70 @@ export function PostDetail({ postId }: { postId: string }) {
         </h2>
 
         <ul className="mt-4 space-y-4">
-          {threads.map(({ root, replies }) => (
-            <li key={root.id}>
-              <CommentRow comment={root} onReply={() => setReplyTo(root)} />
-              {replies.length > 0 && (
-                <ul className="ml-6 mt-3 space-y-3 border-l border-[var(--stroke)] pl-4">
-                  {replies.map((r) => (
-                    <li key={r.id}>
-                      <CommentRow comment={r} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
+          {threads.map(({ root, replies }) => {
+            // The box belongs to this thread if the comment being replied to
+            // is its root or any of its replies, which is what puts it
+            // underneath the conversation it is joining rather than at the
+            // bottom of the page.
+            const replyingHere =
+              replyTo?.rootId === root.id ? replyTo.target : null;
+            return (
+              <li key={root.id}>
+                <CommentRow
+                  comment={root}
+                  onReply={() => openReply(root, root.id)}
+                  replying={replyingHere?.id === root.id}
+                />
+
+                {(replies.length > 0 || replyingHere) && (
+                  <ul className="ml-6 mt-3 space-y-3 border-l border-[var(--stroke)] pl-4">
+                    {replies.map((r) => (
+                      <li key={r.id}>
+                        <CommentRow
+                          comment={r}
+                          onReply={() => openReply(r, root.id)}
+                          replying={replyingHere?.id === r.id}
+                        />
+                      </li>
+                    ))}
+                    {replyingHere && (
+                      <li>
+                        <ReplyBox
+                          to={replyingHere.authorName}
+                          value={replyDraft}
+                          onChange={setReplyDraft}
+                          name={name}
+                          onNameChange={setName}
+                          sending={sending}
+                          onCancel={() => setReplyTo(null)}
+                          onSubmit={() =>
+                            postComment(replyDraft, root.id, () => {
+                              setReplyDraft("");
+                              setReplyTo(null);
+                            })
+                          }
+                        />
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
-        <form onSubmit={submitComment} className="card mt-6 p-4">
-          {replyTo && (
-            <p className="mb-2 flex items-center gap-2 text-[12.5px] text-[var(--ink-2)]">
-              Replying to <span className="font-medium">{replyTo.authorName}</span>
-              <button
-                type="button"
-                className="underline decoration-dotted underline-offset-2"
-                onClick={() => setReplyTo(null)}
-              >
-                cancel
-              </button>
-            </p>
-          )}
+        {/*
+          Starts a new thread, and only that. Replies are composed inline
+          under the comment they answer, so this box no longer changes what
+          it does depending on state somewhere else on the page.
+        */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            postComment(draft, null, () => setDraft(""));
+          }}
+          className="card mt-6 p-4"
+        >
           <label htmlFor="comment-body" className="sr-only">
             Add a comment
           </label>
@@ -336,17 +391,110 @@ export function PostDetail({ postId }: { postId: string }) {
   );
 }
 
+/**
+ * The inline reply box.
+ *
+ * Deliberately not the same component as the composer at the bottom. That
+ * one starts a conversation and can afford to look like a form: a card, a
+ * label, room to write. This one joins a conversation already on screen, so
+ * every pixel it takes is pixels between two people talking - no card, one
+ * line of chrome, a textarea that starts small and grows, and the name field
+ * shrunk to sit beside the button instead of above it.
+ *
+ * It renders inside the thread's indented list, which is what makes "reply"
+ * read as a position rather than a mode you are in.
+ */
+function ReplyBox({
+  to,
+  value,
+  onChange,
+  name,
+  onNameChange,
+  sending,
+  onCancel,
+  onSubmit,
+}: {
+  to: string;
+  value: string;
+  onChange: (v: string) => void;
+  name: string;
+  onNameChange: (v: string) => void;
+  sending: boolean;
+  onCancel: () => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      className="rounded-[var(--radius-card)] p-2.5"
+      style={{ background: "var(--surface-2, var(--surface))", border: "1px solid var(--stroke)" }}
+    >
+      <p className="mb-1.5 flex items-center gap-2 text-[11.5px] text-[var(--ink-2)]">
+        Replying to <span className="font-medium text-[var(--ink)]">{to}</span>
+      </p>
+      <textarea
+        // Focused on mount so clicking Reply puts the cursor where you are
+        // already looking, instead of asking for a second click.
+        autoFocus
+        aria-label={`Reply to ${to}`}
+        className="input min-h-[52px] resize-y !text-[13.5px]"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={LIMITS.commentMax}
+        placeholder={`Reply to ${to}…`}
+        onKeyDown={(e) => {
+          // Escape closes it; the button is still the obvious way out.
+          if (e.key === "Escape") onCancel();
+        }}
+      />
+      <div className="mt-2 flex items-center gap-2">
+        <input
+          aria-label="Your name"
+          className="input max-w-[140px] !py-1.5 !text-[12.5px]"
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          maxLength={LIMITS.nameMax}
+          placeholder="Your name"
+        />
+        <button
+          type="button"
+          onClick={onCancel}
+          className="ml-auto text-[12px] text-[var(--ink-2)] underline decoration-dotted underline-offset-2 hover:text-[var(--ink)]"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="btn-primary btn-sm"
+          disabled={sending || !value.trim()}
+        >
+          {sending ? "Posting…" : "Reply"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function CommentRow({
   comment,
   onReply,
+  replying = false,
 }: {
   comment: Comment;
   onReply?: () => void;
+  /** Its reply box is open below, so the comment shows what is being answered. */
+  replying?: boolean;
 }) {
   return (
     <div
-      className="rounded-[var(--radius-card)] p-3"
-      style={{ background: "var(--surface)", border: "1px solid transparent" }}
+      className="rounded-[var(--radius-card)] p-3 transition-colors"
+      style={{
+        background: "var(--surface)",
+        border: `1px solid ${replying ? "var(--brand)" : "transparent"}`,
+      }}
     >
       <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
         <span className="font-semibold text-[var(--ink)]">{comment.authorName}</span>
@@ -361,7 +509,7 @@ function CommentRow({
         <span className="text-[var(--ink-2)]">
           {relativeTime(comment.createdAt)}
         </span>
-        {onReply && (
+        {onReply && !replying && (
           <button
             type="button"
             onClick={onReply}

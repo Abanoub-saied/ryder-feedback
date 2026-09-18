@@ -508,7 +508,7 @@
     "boardId": "app",
     "title": "Support multiple Ryder wallets in the app",
     "body": "It wound be good to be able to have multiple wallets connects to the app at the same time.\nThis helps with backup wallets or split wallets",
-    "authorName": "lnhaig@gmail.com",
+    "authorName": "lnhaig",
     "status": "open",
     "moderation": "pending",
     "votes": 1,

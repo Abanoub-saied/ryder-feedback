@@ -1,0 +1,39 @@
+{
+  "name": "ryder-feedback",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Public feedback board and roadmap for Ryder. Next.js App Router + Firebase.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "seed": "node scripts/seed.mjs",
+    "backfill": "node scripts/backfill-moderation.mjs",
+    "emu": "firebase emulators:start --only firestore,auth",
+    "test:rules": "firebase emulators:exec --only firestore \"node --test tests/rules.test.mjs\"",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes",
+    "test:e2e": "bash scripts/run-smoke.sh",
+    "test:unit": "node --test tests/ranking.test.mjs",
+    "test": "npm run test:unit && npm run test:rules"
+  },
+  "dependencies": {
+    "firebase": "12.18.0",
+    "firebase-admin": "14.3.0",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=20.11"
+  }
+}

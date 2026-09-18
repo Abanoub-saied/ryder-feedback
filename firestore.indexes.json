@@ -1,0 +1,141 @@
+{
+  "indexes": [
+    {
+      "//": "Board tab, sorted by votes. Also serves the 'Top' sort. Every public query filters isPublic == true, which is the denormalised 'approved and not merged' flag — see the note on Post.isPublic for why it is one field rather than two.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "boardId", "order": "ASCENDING" },
+        { "fieldPath": "voteCount", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Board tab, newest first.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "boardId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "All-boards view, sorted by votes.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "voteCount", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "All-boards view, newest first.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Status filter on a board (e.g. show only 'planned' in Product).",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "boardId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "voteCount", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Status filter on a board, newest first. Pairs with the votes-ordered index above; without it, picking a board + a status + the 'New' sort has no index to run on.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "boardId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Status filter across all boards, newest first.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Roadmap columns: one query per status, ordered by demand.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isPublic", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "voteCount", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Review queue: everything a human has not decided on yet, oldest first, because the oldest unanswered submission is the one costing the most goodwill.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderation", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "//": "Admin ideas table: one moderation bucket, newest first.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "moderation", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Admin triage table: everything in one pipeline status, most wanted first.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "voteCount", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "/me — everything I have submitted, including my own pending and rejected ideas, which only I and an admin can read.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "authorId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "/me — every comment I have written, across every post. A collection group query, so it needs a COLLECTION_GROUP index rather than a collection one.",
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "authorId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "//": "Admin analytics — vote receipts inside the reporting window, for the votes-per-day timeline and the unique/repeat voter counts. Read only by the Admin SDK in /api/admin/analytics; the Admin SDK bypasses security rules but still needs the index. This is a field override rather than a composite index because it orders on a SINGLE field: Firestore rejects a one-field composite index outright ('this index is not necessary, configure using single field index controls'). Collection-group scope is not on by default for single fields, so it has to be asked for here. The two COLLECTION entries restate Firestore's own defaults, which an override would otherwise replace — dropping them would quietly un-index createdAt for ordinary per-post queries.",
+      "collectionGroup": "votes",
+      "fieldPath": "createdAt",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" },
+        { "order": "DESCENDING", "queryScope": "COLLECTION" },
+        { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,747 @@
+@import "tailwindcss";
+
+/* ==================================================================
+   Ryder — colour system
+   ==================================================================
+   Implements the "Colour scales" sheet verbatim. Every hex below is
+   from that sheet; nothing here is eyeballed.
+
+   NEUTRAL BASE            light      dark
+     Base 1                #FAFAFA    #08080A   background primary
+     Base 2                #EFEFF1    #101014   background secondary / button disabled
+     Base 3                #E1E1E6    #1C1C22   strokes / button secondary
+     Base 4                #C1C1C7    #3F3F47   strokes secondary / text disabled
+     Base 5                #898994    #72727E   text secondary
+     Base 6                #08080A    #FAFAFA   text primary / button primary
+
+   BRAND
+     Primary               #0F3BFF
+     Secondary             #FF4600
+
+   The most important structural idea in the sheet: the two ramps are
+   mirror images, so a role can be written *once* against --base-N and
+   dark mode only has to swap the six ramp values. That is why the role
+   block below appears one time, not twice.
+   ================================================================== */
+
+@theme {
+  /* Wired up with next/font in layout.tsx: self-hosted, preloaded, no
+     render-blocking stylesheet and no flash of fallback text. */
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-anek), var(--font-geist), ui-sans-serif,
+    system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+
+  /* Shape. Pills for anything one line tall, soft rectangles for
+     containers — the ryder.id habit, kept. */
+  --radius-card: 14px;
+  --radius-lg: 20px;
+  --radius-control: 12px;
+  --radius-pill: 999px;
+
+  /* Motion. One expressive curve and one calm one, so easing is a
+     decision made here instead of per component. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.25, 1.1);
+}
+
+/* ------------------------------------------------------------------
+   1. Ramp + palette. Only this block is redefined per theme.
+   ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --base-1: #fafafa;
+  --base-2: #efeff1;
+  --base-3: #e1e1e6;
+  --base-4: #c1c1c7;
+  --base-5: #898994;
+  --base-6: #08080a;
+
+  /* Brand is theme-stable; the blue used as *text* is not, so it gets
+     its own token. */
+  --brand: #0f3bff;
+  --brand-secondary: #ff4600;
+  --link: #0f3bff;
+
+  /* Low contrast labels — background / content pairs */
+  --label-blue-bg: #c4deff;
+  --label-blue-fg: #0f3bff;
+  --label-green-bg: #cff8d9;
+  --label-green-fg: #00a354;
+  --label-yellow-bg: #ffe4ad;
+  --label-yellow-fg: #913c00;
+  --label-red-bg: #ffd9e0;
+  --label-red-fg: #d40e23;
+
+  /* High contrast labels */
+  --hc-light-bg: #89aaff;
+  --hc-light-fg: #001470;
+  --hc-success-bg: #60e689;
+  --hc-success-fg: #0a1f11;
+  --hc-medium-bg: #ffaf2e;
+  --hc-medium-fg: #3d1400;
+  --hc-high-bg: #ff5062;
+  --hc-high-fg: #320f0f;
+
+  /* Text — earn */
+  --earn-high: #00a354;
+  --earn-low: #63c476;
+
+  /* UI */
+  --override-white: #ffffff;
+  --override-black: #000000;
+  --grad-from: #e1e1e6;
+  --grad-to: #efeff1;
+  --popup: rgb(250 250 250 / 0.92);
+  --sheet-overlay: rgb(212 217 217 / 0.8);
+
+  /* Shadows are not in the sheet. Derived from the ink end of the ramp
+     so they stay tonally part of the same system. */
+  --shadow-sm: 0 1px 2px rgb(8 8 10 / 0.05);
+  --shadow-md: 0 4px 16px -4px rgb(8 8 10 / 0.1), 0 1px 3px rgb(8 8 10 / 0.05);
+  --shadow-lg: 0 18px 48px -12px rgb(8 8 10 / 0.18),
+    0 4px 12px -4px rgb(8 8 10 / 0.08);
+  --shadow-brand: 0 8px 28px -8px rgb(15 59 255 / 0.35);
+}
+
+/* The dark ramp. The `light` guard means an explicit choice always wins
+   over the OS preference, in both directions. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --base-1: #08080a;
+    --base-2: #101014;
+    --base-3: #1c1c22;
+    --base-4: #3f3f47;
+    --base-5: #72727e;
+    --base-6: #fafafa;
+
+    --link: #398fff;
+
+    --label-blue-bg: #001b3d;
+    --label-blue-fg: #398fff;
+    --label-green-bg: #0a1f11;
+    --label-green-fg: #00c357;
+    --label-yellow-bg: #3d1400;
+    --label-yellow-fg: #ffaf2e;
+    --label-red-bg: #320f0f;
+    --label-red-fg: #ff5062;
+
+    --earn-high: #00c357;
+    --earn-low: #077036;
+
+    --grad-from: #101014;
+    --grad-to: #1c1c22;
+    --popup: rgb(8 8 10 / 0.92);
+    --sheet-overlay: rgb(28 28 34 / 0.8);
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+    --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.6), 0 1px 3px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 18px 48px -12px rgb(0 0 0 / 0.7),
+      0 4px 12px -4px rgb(0 0 0 / 0.5);
+    --shadow-brand: 0 8px 28px -8px rgb(57 143 255 / 0.4);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --base-1: #08080a;
+  --base-2: #101014;
+  --base-3: #1c1c22;
+  --base-4: #3f3f47;
+  --base-5: #72727e;
+  --base-6: #fafafa;
+
+  --link: #398fff;
+
+  --label-blue-bg: #001b3d;
+  --label-blue-fg: #398fff;
+  --label-green-bg: #0a1f11;
+  --label-green-fg: #00c357;
+  --label-yellow-bg: #3d1400;
+  --label-yellow-fg: #ffaf2e;
+  --label-red-bg: #320f0f;
+  --label-red-fg: #ff5062;
+
+  --earn-high: #00c357;
+  --earn-low: #077036;
+
+  --grad-from: #101014;
+  --grad-to: #1c1c22;
+  --popup: rgb(8 8 10 / 0.92);
+  --sheet-overlay: rgb(28 28 34 / 0.8);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.6), 0 1px 3px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 18px 48px -12px rgb(0 0 0 / 0.7),
+    0 4px 12px -4px rgb(0 0 0 / 0.5);
+  --shadow-brand: 0 8px 28px -8px rgb(57 143 255 / 0.4);
+}
+
+/* ------------------------------------------------------------------
+   2. Roles. Written once, against the ramp, so they follow the theme
+   automatically. These are the names the components actually use.
+   ------------------------------------------------------------------ */
+:root {
+  --page: var(--base-1); /* background primary   */
+  --surface: var(--base-2); /* background secondary */
+  --surface-2: var(--base-3); /* button secondary     */
+  --stroke: var(--base-3); /* strokes              */
+  --stroke-2: var(--base-4); /* strokes secondary    */
+  --ink: var(--base-6); /* text primary         */
+  --ink-2: var(--base-5); /* text secondary       */
+  --ink-3: var(--base-4); /* text disabled        */
+
+  --btn-fg: var(--base-1); /* label on a Base-6 button */
+  --btn-disabled: var(--base-2);
+
+  /* Derived states. color-mix against the ramp means one rule covers
+     both themes: in light it darkens, in dark it lightens. */
+  --surface-hover: color-mix(in srgb, var(--base-6) 5%, var(--surface));
+  --page-hover: color-mix(in srgb, var(--base-6) 4%, var(--page));
+  --brand-tint: color-mix(in srgb, var(--brand) 10%, transparent);
+  --ring: var(--brand);
+}
+
+/* ------------------------------------------------------------------
+   3. Tailwind bridge. `@theme inline` keeps the var() reference in the
+   generated utility, so `bg-surface` re-resolves when the theme flips
+   instead of being frozen at build time.
+   ------------------------------------------------------------------ */
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-hover: var(--surface-hover);
+  --color-stroke: var(--stroke);
+  --color-stroke-2: var(--stroke-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-brand: var(--brand);
+  --color-flame: var(--brand-secondary);
+  --color-link: var(--link);
+  --color-earn: var(--earn-high);
+
+  --color-base-1: var(--base-1);
+  --color-base-2: var(--base-2);
+  --color-base-3: var(--base-3);
+  --color-base-4: var(--base-4);
+  --color-base-5: var(--base-5);
+  --color-base-6: var(--base-6);
+}
+
+/* ------------------------------------------------------------------
+   4. Base layer
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    /* ryder.id runs body copy at 500. It is a large part of why the
+       brand reads as confident rather than default. */
+    font-weight: 500;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--brand-tint);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--stroke-2);
+    border-radius: 999px;
+    border: 3px solid var(--page);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   5. Utilities
+   ------------------------------------------------------------------ */
+
+/* Anek Latin ships as a variable font with a width axis (75–125).
+   "Anek Latin Expanded" is the wdth=125 instance, so this reaches the
+   real face through the axis rather than a second download. */
+@utility display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.015em;
+}
+
+/* The sheet's Gradient tokens, applied as a surface. Two ramp steps
+   apart, so it lifts a panel without introducing a new colour. */
+@utility grad-surface {
+  background-image: linear-gradient(
+    150deg,
+    var(--grad-from) 0%,
+    var(--grad-to) 100%
+  );
+}
+
+/* The sheet lists Strokes as a *gradient*, not a flat line. A padded
+   background-image pair is the only way to get one on a rounded box
+   without a pseudo-element per card. */
+@utility stroke-grad {
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--surface), var(--surface)),
+    linear-gradient(140deg, var(--stroke-2), var(--stroke));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+@utility numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The shared button base.
+   Declared with @utility, not as a plain class in @layer components: in
+   Tailwind v4 `@apply` resolves utilities only, so the variants below could
+   not apply a component class. Same declarations, same cascade position for
+   the variants — only the mechanism differs. */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1;
+  border-radius: var(--radius-pill);
+  padding: 0.6875rem 1.125rem;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition:
+    background-color 160ms var(--ease-out-quint),
+    border-color 160ms var(--ease-out-quint),
+    color 160ms var(--ease-out-quint),
+    box-shadow 160ms var(--ease-out-quint),
+    transform 120ms var(--ease-out-quint);
+}
+
+
+@layer components {
+  /* --- Surfaces --------------------------------------------------- */
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-card);
+  }
+
+  .card-interactive {
+    transition:
+      border-color 200ms var(--ease-out-quint),
+      box-shadow 200ms var(--ease-out-quint),
+      transform 200ms var(--ease-out-quint),
+      background-color 200ms var(--ease-out-quint);
+  }
+  .card-interactive:hover {
+    border-color: var(--stroke-2);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  /* Popup / sheet chrome, straight from the UI section of the sheet. */
+  .popup {
+    background: var(--popup);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* --- Buttons ---------------------------------------------------- */
+  /* Base 6 is "Button primary" in the sheet, so the primary action is
+     ink-on-paper (and paper-on-ink in dark), not brand blue. Blue is
+     reserved for links, labels, focus and the voted state — which is
+     what keeps it meaningful when it does appear. */
+  :is(.btn, .btn-primary, .btn-brand, .btn-secondary, .btn-ghost):active:not(:disabled) {
+    transform: scale(0.975);
+  }
+  :is(.btn, .btn-primary, .btn-brand, .btn-secondary, .btn-ghost):disabled {
+    background-color: var(--btn-disabled);
+    color: var(--ink-3);
+    border-color: transparent;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn;
+    background-color: var(--base-6);
+    color: var(--btn-fg);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--base-6) 85%, var(--base-5));
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-brand {
+    @apply btn;
+    background-color: var(--brand);
+    color: #ffffff;
+  }
+  .btn-brand:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--brand) 88%, var(--base-6));
+    box-shadow: var(--shadow-brand);
+  }
+
+  /* Base 3 is "Button secondary". */
+  .btn-secondary {
+    @apply btn;
+    background-color: var(--surface-2);
+    color: var(--ink);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--base-6) 8%, var(--surface-2));
+  }
+
+  .btn-ghost {
+    @apply btn;
+    background-color: transparent;
+    color: var(--ink-2);
+    border-color: var(--stroke);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--surface-hover);
+    color: var(--ink);
+    border-color: var(--stroke-2);
+  }
+
+  .btn-sm {
+    padding: 0.4375rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+  .btn-lg {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  /* --- Form controls ---------------------------------------------- */
+  /* Defined inside `components` on purpose: Tailwind's utilities layer
+     comes after it, so `pl-9` or `w-auto` on an element that also has
+     `.input` still wins, which is what you expect when you write both. */
+  .input {
+    width: 100%;
+    background-color: var(--page);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-pill);
+    padding: 0.625rem 1rem;
+    font-size: 0.9375rem;
+    color: var(--ink);
+    transition:
+      border-color 160ms var(--ease-out-quint),
+      box-shadow 160ms var(--ease-out-quint),
+      background-color 160ms var(--ease-out-quint);
+  }
+  .input::placeholder {
+    color: var(--ink-3);
+  }
+  .input:hover:not(:disabled) {
+    border-color: var(--stroke-2);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-tint);
+  }
+  .input:disabled {
+    background-color: var(--btn-disabled);
+    color: var(--ink-3);
+    cursor: not-allowed;
+  }
+
+  /* A pill is wrong once the box can wrap, so multi-line controls fall
+     back to the container radius. */
+  textarea.input {
+    border-radius: var(--radius-card);
+    line-height: 1.6;
+  }
+  select.input {
+    appearance: none;
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' stroke='%23898994' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+  }
+
+  /* --- Chips ------------------------------------------------------ */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--stroke);
+    background: transparent;
+    color: var(--ink-2);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+      background-color 160ms var(--ease-out-quint),
+      border-color 160ms var(--ease-out-quint),
+      color 160ms var(--ease-out-quint);
+  }
+  .chip:hover:not(:disabled):not([aria-pressed="true"]) {
+    border-color: var(--stroke-2);
+    color: var(--ink);
+    background: var(--surface-hover);
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--base-6);
+    border-color: var(--base-6);
+    color: var(--btn-fg);
+  }
+
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.375rem;
+    height: 1.375rem;
+    padding: 0 0.3125rem;
+    border-radius: 6px;
+    border: 1px solid var(--stroke);
+    background: var(--surface);
+    color: var(--ink-2);
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .link {
+    color: var(--link);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--link) 40%, transparent);
+    transition: text-decoration-color 160ms var(--ease-out-quint);
+  }
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--stroke-2) transparent;
+  }
+}
+
+/* ------------------------------------------------------------------
+   6. Motion
+   ------------------------------------------------------------------ */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-pop {
+  animation: pop-in 260ms var(--ease-out-quint) both;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-rise {
+  animation: rise-in 420ms var(--ease-out-quint) both;
+}
+
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-scrim {
+  animation: scrim-in 200ms ease both;
+}
+
+/* Skeletons shimmer rather than pulse: a moving highlight reads as
+   "loading", a fading block reads as "broken". */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-card);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--base-6) 6%, transparent),
+    transparent
+  );
+  animation: shimmer 1.6s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation-name: none;
+    opacity: 0;
+  }
+}
+
+@keyframes vote-bump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-bump {
+  animation: vote-bump 260ms var(--ease-spring);
+}
+
+/* The Ryder mark, spinning while a vote is in flight. Its glyph bounding
+   box is square, so a plain rotate turns about the true centre. */
+@keyframes mark-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-mark {
+  animation: mark-spin 900ms linear infinite;
+}
+
+/* The base layer clamps animation-*duration* with !important, which for
+   an infinite spin means jitter rather than calm. Killing the
+   animation-name instead actually stops it — and nothing is lost,
+   because swapping the arrow for the mark is itself the busy state,
+   backed by aria-busy on the button. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-mark {
+    animation-name: none;
+  }
+}
+
+/* Confetti burst on a landed vote. Each piece is centred on the button
+   and flies to its own --cx/--cy offset while rotating out, so one
+   keyframe serves all ten. */
+@keyframes confetti-fly {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--cx)), calc(-50% + var(--cy)))
+      scale(0.85) rotate(var(--cr));
+  }
+}
+.confetti-piece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  animation: confetti-fly 760ms cubic-bezier(0.16, 0.72, 0.3, 1) both;
+}
+
+/* The new number arriving. Overshoots past 1 and settles, which is what
+   makes it read as a reveal rather than a repaint. */
+@keyframes count-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(3px) scale(0.72);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0) scale(1.24);
+  }
+  100% {
+    transform: none;
+  }
+}
+.animate-count-pop {
+  animation: count-pop 460ms var(--ease-spring) both;
+}
+
+/* Celebration is the most motion on the page, so it is the first thing
+   to go. The base layer's duration clamp would otherwise flash the whole
+   burst in a single frame — worse than not showing it. */
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece {
+    display: none;
+  }
+  .animate-count-pop {
+    animation-name: none;
+  }
+}
+

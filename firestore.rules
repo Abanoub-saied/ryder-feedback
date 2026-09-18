@@ -1,0 +1,185 @@
+rules_version = '2';
+
+// ---------------------------------------------------------------------------
+// Ryder feedback board — Firestore security rules
+//
+// The architecture in one paragraph:
+//
+//   Reads are public and realtime. Anyone can stream the board, the roadmap,
+//   comments and the status timeline without signing in. Writes are not
+//   client-side at all: every mutation goes through a Next.js route handler
+//   using the Admin SDK, which bypasses these rules, and that handler is the
+//   single place where token verification, validation, rate limiting and the
+//   admin claim check live.
+//
+// Why no client writes, when Firestore rules are perfectly capable of
+// guarding them? Voting is the interesting case, and it is worth writing
+// down because the obvious design is subtly broken.
+//
+//   The tempting version: let the browser write the vote receipt at
+//   posts/{id}/votes/{uid} and a +1 on posts/{id}.voteCount in one batch,
+//   and have a rule allow the counter change only when it moves by exactly
+//   one and no receipt exists yet.
+//
+//   Why it fails: rules evaluate each write in a batch independently, against
+//   the state *before* the batch. The rule guarding the counter therefore
+//   cannot tell an increment that came with a new receipt from an increment
+//   sent on its own. A client that simply never writes the receipt satisfies
+//   the "no receipt exists" check on every request and can inflate the
+//   counter without limit.
+//
+//   So the counter is not client-writable. api/posts/[id]/vote owns it in a
+//   transaction, and the receipt's document id being the uid is what makes a
+//   duplicate vote unrepresentable rather than merely forbidden.
+//
+// tests/rules.test.mjs asserts every claim below, including that exact
+// attack.
+// ---------------------------------------------------------------------------
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Admin access, restated from src/lib/access.ts: a verified Google
+    // account on the company domain. That is the whole rule - there is no
+    // custom-claim path, here or there, so a leaked or forgotten grant
+    // cannot become a way in.
+    //
+    // Two copies of one rule is a real cost, and the alternative is worse:
+    // rules cannot call into TypeScript, and leaving the check to the route
+    // handlers alone would leave the pending queue readable by anyone who
+    // opens a browser console, because reads here go straight to Firestore.
+    // tests/rules.test.mjs pins this copy against the same cases.
+    //
+    // The provider check carries the weight. An email claim is evidence only
+    // because Google Workspace vouched for it; without that line, enabling
+    // any provider where people type their own address - email/password is
+    // one console click - would let anyone mint themselves an admin. It also
+    // has to come first: && absorbs the error from reading an email claim
+    // that an anonymous token does not carry.
+    function isAdmin() {
+      return signedIn()
+             && request.auth.token.firebase.sign_in_provider == 'google.com'
+             && request.auth.token.email_verified == true
+             && request.auth.token.email.lower().matches('[^@]+@ryder[.]id');
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    // --- Boards -----------------------------------------------------------
+    // Public reference data, seeded by scripts/seed.mjs.
+    match /boards/{boardId} {
+      allow get, list: if true;
+      allow write: if false;
+    }
+
+    // --- Posts ------------------------------------------------------------
+    //
+    // Admin approval is enforced *here*, not only in the UI. A pending idea
+    // is invisible to everyone except its author and an admin, and that is a
+    // database fact rather than a filter the client is trusted to apply.
+    //
+    // How `list` works, since it is the part people get wrong: Firestore does
+    // not run a list rule per returned document. It checks, statically, that
+    // the *query* can only ever return documents satisfying the rule. So
+    // `resource.data.isPublic == true` does not filter anything — it means a
+    // query without `where("isPublic","==",true)` is rejected outright. The
+    // disjunction below therefore says: you may list the public board, or
+    // your own submissions, or — if you hold the admin claim, which is
+    // request-level and so short-circuits the whole expression — anything.
+    match /posts/{postId} {
+      allow get: if resource.data.isPublic == true
+                 || isAdmin()
+                 || (signedIn() && resource.data.authorId == uid());
+      allow list: if resource.data.isPublic == true
+                  || isAdmin()
+                  || (signedIn() && resource.data.authorId == uid());
+
+      // Creating, editing, restatusing, pinning, merging and deleting are all
+      // server-side. In particular a client cannot set `status`, which is the
+      // only thing that puts an item on the public roadmap.
+      allow write: if false;
+
+      // --- Vote receipts --------------------------------------------------
+      // Written only by the vote route. The document id *is* the voter's uid,
+      // so one person cannot hold two receipts on the same post.
+      match /votes/{voterId} {
+        // You can check your own receipt; nobody can enumerate the voters,
+        // so a public board never leaks who voted for what. The aggregate
+        // lives on the post as voteCount.
+        allow get: if signedIn() && voterId == uid();
+        allow list: if isAdmin();
+        allow write: if false;
+      }
+
+      // --- Comments -------------------------------------------------------
+      // Server-written, which is what makes the `isAdmin` flag meaningful:
+      // it comes from a verified custom claim, so nobody can post a reply
+      // wearing a Ryder badge.
+      match /comments/{commentId} {
+        allow get, list: if true;
+        allow write: if false;
+      }
+
+      // --- Status timeline ------------------------------------------------
+      match /events/{eventId} {
+        allow get, list: if true;
+        allow write: if false;
+      }
+    }
+
+    // --- Collection group reads -------------------------------------------
+    //
+    // /me needs "every comment I have written", which spans every post and so
+    // has to be a collection group query. Those match only `{path=**}`
+    // patterns, never the nested rule above, so the permission has to be
+    // granted separately — and it is granted narrowly: scoped to your own
+    // authorId, which by the static-analysis rule above means the query must
+    // carry `where("authorId","==",<you>)` or it is refused. Nobody gets to
+    // sweep every comment on the site in one request.
+    match /{path=**}/comments/{commentId} {
+      allow list: if signedIn() && resource.data.authorId == uid();
+    }
+
+    // --- User profiles ----------------------------------------------------
+    // Where an optional email lives. Deliberately not on the post, so a
+    // public board never exposes contact details.
+    match /users/{userId} {
+      allow get: if signedIn() && (userId == uid() || isAdmin());
+      allow list: if isAdmin();
+      allow write: if false;
+
+      // The visitor's own index of what they voted on. Its only job is to
+      // answer "what have I voted on?" in one query instead of one read per
+      // card, and it is readable by nobody else.
+      //
+      // Not the source of truth — the receipt above is — and not writable
+      // from a browser either, so it cannot drift from the receipts.
+      match /myVotes/{postId} {
+        allow read: if signedIn() && userId == uid();
+        allow write: if false;
+      }
+    }
+
+    // --- Rate limit ledger ------------------------------------------------
+    // Server bookkeeping. Closed to clients so nobody can read or clear
+    // their own counter.
+    match /rateLimits/{docId} {
+      allow read, write: if false;
+    }
+
+    // Firestore already denies anything not explicitly allowed, and because
+    // allow rules are additive this block cannot take access away. It is
+    // here as documentation: the deny-by-default posture is intentional, so
+    // a collection added later starts closed until someone opens it on
+    // purpose.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

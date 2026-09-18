@@ -1,0 +1,134 @@
+rules_version = '2';
+
+// ---------------------------------------------------------------------------
+// Ryder feedback board — Firestore security rules
+//
+// The architecture in one paragraph:
+//
+//   Reads are public and realtime. Anyone can stream the board, the roadmap,
+//   comments and the status timeline without signing in. Writes are not
+//   client-side at all: every mutation goes through a Next.js route handler
+//   using the Admin SDK, which bypasses these rules, and that handler is the
+//   single place where token verification, validation, rate limiting and the
+//   admin claim check live.
+//
+// Why no client writes, when Firestore rules are perfectly capable of
+// guarding them? Voting is the interesting case, and it is worth writing
+// down because the obvious design is subtly broken.
+//
+//   The tempting version: let the browser write the vote receipt at
+//   posts/{id}/votes/{uid} and a +1 on posts/{id}.voteCount in one batch,
+//   and have a rule allow the counter change only when it moves by exactly
+//   one and no receipt exists yet.
+//
+//   Why it fails: rules evaluate each write in a batch independently, against
+//   the state *before* the batch. The rule guarding the counter therefore
+//   cannot tell an increment that came with a new receipt from an increment
+//   sent on its own. A client that simply never writes the receipt satisfies
+//   the "no receipt exists" check on every request and can inflate the
+//   counter without limit.
+//
+//   So the counter is not client-writable. api/posts/[id]/vote owns it in a
+//   transaction, and the receipt's document id being the uid is what makes a
+//   duplicate vote unrepresentable rather than merely forbidden.
+//
+// tests/rules.test.mjs asserts every claim below, including that exact
+// attack.
+// ---------------------------------------------------------------------------
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    // --- Boards -----------------------------------------------------------
+    // Public reference data, seeded by scripts/seed.mjs.
+    match /boards/{boardId} {
+      allow get, list: if true;
+      allow write: if false;
+    }
+
+    // --- Posts ------------------------------------------------------------
+    match /posts/{postId} {
+      allow get, list: if true;
+
+      // Creating, editing, restatusing, pinning, merging and deleting are all
+      // server-side. In particular a client cannot set `status`, which is the
+      // only thing that puts an item on the public roadmap.
+      allow write: if false;
+
+      // --- Vote receipts --------------------------------------------------
+      // Written only by the vote route. The document id *is* the voter's uid,
+      // so one person cannot hold two receipts on the same post.
+      match /votes/{voterId} {
+        // You can check your own receipt; nobody can enumerate the voters,
+        // so a public board never leaks who voted for what. The aggregate
+        // lives on the post as voteCount.
+        allow get: if signedIn() && voterId == uid();
+        allow list: if isAdmin();
+        allow write: if false;
+      }
+
+      // --- Comments -------------------------------------------------------
+      // Server-written, which is what makes the `isAdmin` flag meaningful:
+      // it comes from a verified custom claim, so nobody can post a reply
+      // wearing a Ryder badge.
+      match /comments/{commentId} {
+        allow get, list: if true;
+        allow write: if false;
+      }
+
+      // --- Status timeline ------------------------------------------------
+      match /events/{eventId} {
+        allow get, list: if true;
+        allow write: if false;
+      }
+    }
+
+    // --- User profiles ----------------------------------------------------
+    // Where an optional email lives. Deliberately not on the post, so a
+    // public board never exposes contact details.
+    match /users/{userId} {
+      allow get: if signedIn() && (userId == uid() || isAdmin());
+      allow list: if isAdmin();
+      allow write: if false;
+
+      // The visitor's own index of what they voted on. Its only job is to
+      // answer "what have I voted on?" in one query instead of one read per
+      // card, and it is readable by nobody else.
+      //
+      // Not the source of truth — the receipt above is — and not writable
+      // from a browser either, so it cannot drift from the receipts.
+      match /myVotes/{postId} {
+        allow read: if signedIn() && userId == uid();
+        allow write: if false;
+      }
+    }
+
+    // --- Rate limit ledger ------------------------------------------------
+    // Server bookkeeping. Closed to clients so nobody can read or clear
+    // their own counter.
+    match /rateLimits/{docId} {
+      allow read, write: if false;
+    }
+
+    // Firestore already denies anything not explicitly allowed, and because
+    // allow rules are additive this block cannot take access away. It is
+    // here as documentation: the deny-by-default posture is intentional, so
+    // a collection added later starts closed until someone opens it on
+    // purpose.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
